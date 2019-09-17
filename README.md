@@ -2,6 +2,45 @@
 
 [![Build Status](https://travis-ci.org/zix99/bash-minimist.svg?branch=master)](https://travis-ci.org/zix99/bash-minimist)
 
+*bash-minimist* is a lightweight bash script inspired by the NodeJS module [minimist](https://github.com/substack/minimist).
+
+It is meant to be a very simple and non-invasive argument parser.  It will convert any flags or positional arguments into appropriate variables and expose them to your script.
+
+This will fit into your application well 90% of the time for simple things, and once you outgrow it, it should be easy to convert.
+
+## Usage
+
+Download [minimist.sh](minimist.sh) and place in your script path.
+
+Add `source minimist.sh` to your script after your shebang.
+
+See [minimist.example.sh](minimist.example.sh) for a complete example, and the header of *minimist.sh* for details.
+
+```sh
+#!/bin/bash
+source minimist.sh
+
+# Now my variables are exposed via ARG_
+# Positional args have been rewritten, and all flags are excluded. So $1, $2, $3, etc will only be positional
+if [[ $ARG_HELP == 'y' ]]; then
+	echo "Someone passed --help"
+fi
+```
+
+## Configuration
+
+At the top of *minimist.sh* there are a few configurable items, which you can change inline or set before calling minimist.
+
+For instance, to export any parsed args (rather than just setting locally-scoped variables), you could do:
+
+```sh
+#!/bin/bash
+AOPT_DECLARE_FLAGS="-rx" # Readonly, export on 'declare'
+source minimist.sh
+
+echo "Now other scripts can access $ARG_"
+```
+
 # License
 
 The MIT License (MIT)
