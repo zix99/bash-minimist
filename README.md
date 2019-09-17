@@ -39,6 +39,21 @@ AOPT_DECLARE_FLAGS="-rx" # Readonly, export on 'declare'
 source minimist.sh
 
 echo "Now other scripts can access $ARG_"
+echo "A: $VAR_A"
+
+# Single-character flags are case-sensitive
+echo "Flag: $VAR_f $VAR_d $VAR_D"
+
+echo "Pos1: $1"
+```
+
+Now, you can call the script like the following:
+```sh
+$ minimist.sh --a=123 mypositional
+# OR
+$ minimist.sh mypositional --a=123
+# OR
+$ minimist.sh mypositional --a=456 -fD
 ```
 
 ## Error checking
