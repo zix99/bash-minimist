@@ -41,6 +41,14 @@ source minimist.sh
 echo "Now other scripts can access $ARG_"
 ```
 
+## Error checking
+
+The script by itself provides minimal input sanitation.  Any non-alphanumeric character will be replaced by a `_`
+
+If there is still an error after sanitation, an error will be thrown by default (configurable).
+
+All other validation is expected to be done by the script (required variables, etc).
+
 # License
 
 The MIT License (MIT)
