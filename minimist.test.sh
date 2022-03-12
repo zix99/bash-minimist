@@ -22,6 +22,7 @@ function test_basic() {
   assert $ARG_b y
   assert $ARG_c y
   assert "$ARG_V" "abc 123"
+  assert "$ARG_0" "./minimist.test.sh"
 }
 
 function test_positional() {

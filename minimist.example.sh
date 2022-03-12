@@ -24,3 +24,6 @@ if [[ $ARG_t == 'y' || $ARG_TUN == 'y' ]]; then
 fi
 
 echo "Tunneling to $1"
+echo
+echo "ARG_V: $ARG_V"
+echo "\$@: $@"

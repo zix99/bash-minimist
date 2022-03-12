@@ -24,6 +24,9 @@
 #
 # ARG_0 preserves $0
 # ARG_V is the positionals before a ending marker --
+# $1...n are only positional arguments, exclusive of flags
+# Everything following -- marker are treated as positional arguments
+# $@ includes all positional arguments, excluding flags
 #
 # Functional changes
 # To change basic functional requirements, please see configuration below
