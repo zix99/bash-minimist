@@ -39,10 +39,10 @@ AOPT_DECLARE_FLAGS="-rx" # Readonly, export on 'declare'
 source minimist.sh
 
 echo "Now other scripts can access $ARG_"
-echo "A: $VAR_A"
+echo "A: $ARG_A"
 
 # Single-character flags are case-sensitive
-echo "Flag: $VAR_f $VAR_d $VAR_D"
+echo "Flag: $ARG_f $ARG_d $ARG_D"
 
 echo "Pos1: $1"
 ```
