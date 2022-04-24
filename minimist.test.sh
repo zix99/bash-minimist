@@ -30,6 +30,7 @@ function test_positional() {
   source minimist.sh abc -a bq --key val -- -ab --cd 123
   assert $ARG_KEY val
   assert "$ARG_V" "abc bq"
+  assert "$ARG0" ""
 }
 
 function test_positional_override() {
@@ -107,6 +108,42 @@ function test_sanitizing_non_alphanum() {
   assert "$ARG_TEST_123__" "abc @@23"
 }
 
+function test_argument_validate_succeeds() {
+  AOPT_VALID_ARGS=("verbose")
+  source minimist.sh --verbose
+  unset AOPT_VALID_ARGS
+}
+
+function test_argument_validate_succeeds_case() {
+  AOPT_VALID_ARGS=("verbose")
+  source minimist.sh --VeRbose
+  unset AOPT_VALID_ARGS
+}
+
+function test_argument_validate_fails() {
+  AOPT_VALID_ARGS=("verbose")
+  source minimist.sh --bla
+  unset AOPT_VALID_ARGS
+}
+
+function test_flags_validate_succeeds() {
+  AOPT_VALID_ARGS=("a" "b" "c")
+  source minimist.sh -ab -c
+  unset AOPT_VALID_ARGS
+}
+
+function test_flags_validate_fails_missing() {
+  AOPT_VALID_ARGS=("a" "b" "c")
+  source minimist.sh -abq -c
+  unset AOPT_VALID_ARGS
+}
+
+function test_flags_validate_fails_case() {
+  AOPT_VALID_ARGS=("a" "b" "c")
+  source minimist.sh -ab -C
+  unset AOPT_VALID_ARGS
+}
+
 export AOPT_EXIT_ON_ERROR=n
 
 if [[ -z $1 ]]; then
@@ -124,6 +161,12 @@ if [[ -z $1 ]]; then
   test_spaces_in_value
   test_sanitizing_key
   test_sanitizing_non_alphanum
+  test_argument_validate_succeeds
+  test_argument_validate_succeeds_case
+  test_argument_validate_fails
+  test_flags_validate_succeeds
+  test_flags_validate_fails_missing
+  test_flags_validate_fails_case
 else
   eval "$1"
 fi

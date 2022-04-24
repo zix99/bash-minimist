@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 function abortHelp() {
   echo "Usage:"
@@ -8,6 +9,7 @@ function abortHelp() {
   exit 1
 }
 
+AOPT_VALID_ARGS=("help" "h" "tun" "t") # Optional
 source minimist.sh
 
 if [[ $ARG_h == 'y' || $ARG_HELP == 'y' ]]; then

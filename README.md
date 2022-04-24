@@ -62,7 +62,17 @@ The script by itself provides minimal input sanitation.  Any non-alphanumeric ch
 
 If there is still an error after sanitation, an error will be thrown by default (configurable).
 
-All other validation is expected to be done by the script (required variables, etc).
+All other validation is expected to be done by the script (required variables, valid values, etc).
+
+### Error on Unknown Arguments
+
+The script can exit if an argument is unknown, eg.
+```bash
+AOPT_VALID_ARGS=("verbose" "v") # Define acceptable arguments
+source minimist.sh
+```
+
+`./myscript --unknown` would throw an error and exit, while `--verbose` or `-v` would be accepted.
 
 # License
 

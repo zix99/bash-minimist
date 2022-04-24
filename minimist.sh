@@ -52,12 +52,24 @@ AOPT_EXIT_ON_ERROR=${AOPT_EXIT_ON_ERROR:-y}
 # Prefix of exported arguments
 AOPT_PREFIX=${AOPT_PREFIX:-ARG_}
 
-################
+# Array of valid flags (If empty, assume all flags are valid)
+[[ -z $AOPT_VALID_ARGS ]] && AOPT_VALID_ARGS=()
 
-function handleInvalidKey() {
-  echo "Invalid key: '$1', as part of '${2:-$1}'"
+################
+function __handleError() {
+  echo "$1"
   if [[ ${AOPT_EXIT_ON_ERROR^^} == 'Y' ]]; then
     exit 2
+  fi
+}
+
+function handleInvalidKey() {
+  __handleError "Invalid key: '$1', as part of '${2:-$1}'"
+}
+
+function __validateArgument() {
+  if [[ ${#AOPT_VALID_ARGS[@]} -gt 0 && ! " ${AOPT_VALID_ARGS[*]^^} " =~ " ${1^^} " ]]; then
+    __handleError "Invalid argument: --${1}"
   fi
 }
 
@@ -79,11 +91,13 @@ while (( "$#" )); do
       KEY=${1%=*}
       KEY=${KEY:2}
       KEY=$(sanitize $KEY)
+      __validateArgument ${KEY}
       declare ${AOPT_DECLARE_FLAGS} "${AOPT_PREFIX}${KEY^^}=${1#*=}" 2>/dev/null || handleInvalidKey $KEY
       shift
     ;;
     --*) # --abc OR --abc 123
       KEY=$(sanitize $1)
+      __validateArgument ${KEY:2}
       KEY=${KEY^^}
       shift
       if [[ ! -z $1 && ${1:0:1} != '-' && ${AOPT_POSITIONAL_OVER_FLAG^^} != 'Y' ]]; then
@@ -96,6 +110,8 @@ while (( "$#" )); do
     -*) # Multi-flag single-char args; -abc -a -b -C
       KEY=$1
       for (( i=1; i<${#KEY}; i++ )); do
+        [[ ${#AOPT_VALID_ARGS[@]} -gt 0 && ! " ${AOPT_VALID_ARGS[*]} " =~ " ${1:$i:1} " ]] \
+          && __handleError "Invalid flag: -${1:$i:1}"
         declare ${AOPT_DECLARE_FLAGS} "${AOPT_PREFIX}${KEY:$i:1}=$AOPT_TRUTHY" 2>/dev/null || handleInvalidKey ${KEY:$i:1} $KEY
       done
       shift
@@ -120,3 +136,5 @@ unset ARGV
 unset KEY
 unset sanitize
 unset handleInvalidKey
+unset __handleError
+unset __validateArgument
