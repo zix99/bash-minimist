@@ -46,6 +46,9 @@ AOPT_SET_ARGS=${AOPT_SET_ARGS:-y}
 # Value to set for truthy flags
 AOPT_TRUTHY=${AOPT_TRUTHY:-y}
 
+# Name of a function to call on error
+AOPT_ON_ERROR=${AOPT_ON_ERROR:-}
+
 # If y, exit on error
 AOPT_EXIT_ON_ERROR=${AOPT_EXIT_ON_ERROR:-y}
 
@@ -57,13 +60,13 @@ AOPT_PREFIX=${AOPT_PREFIX:-ARG_}
 
 ################
 function __handleError() {
-  echo "$1"
+  [[ ! -z $AOPT_ON_ERROR ]] && $AOPT_ON_ERROR "$1" || echo "$1"
   if [[ ${AOPT_EXIT_ON_ERROR^^} == 'Y' ]]; then
     exit 2
   fi
 }
 
-function handleInvalidKey() {
+function __handleInvalidKey() {
   __handleError "Invalid key: '$1', as part of '${2:-$1}'"
 }
 
@@ -73,7 +76,7 @@ function __validateArgument() {
   fi
 }
 
-function sanitize() {
+function __sanitize() {
   local CLEAN=$@
   CLEAN=${CLEAN//[^a-zA-Z0-9_]/_}
   echo -n $CLEAN
@@ -90,21 +93,21 @@ while (( "$#" )); do
     --*=*) # --abc=123
       KEY=${1%=*}
       KEY=${KEY:2}
-      KEY=$(sanitize $KEY)
+      KEY=$(__sanitize $KEY)
       __validateArgument ${KEY}
-      declare ${AOPT_DECLARE_FLAGS} "${AOPT_PREFIX}${KEY^^}=${1#*=}" 2>/dev/null || handleInvalidKey $KEY
+      declare ${AOPT_DECLARE_FLAGS} "${AOPT_PREFIX}${KEY^^}=${1#*=}" 2>/dev/null || __handleInvalidKey $KEY
       shift
     ;;
     --*) # --abc OR --abc 123
-      KEY=$(sanitize $1)
+      KEY=$(__sanitize $1)
       __validateArgument ${KEY:2}
       KEY=${KEY^^}
       shift
       if [[ ! -z $1 && ${1:0:1} != '-' && ${AOPT_POSITIONAL_OVER_FLAG^^} != 'Y' ]]; then
-        declare ${AOPT_DECLARE_FLAGS} "${AOPT_PREFIX}${KEY:2}=$1" 2>/dev/null || handleInvalidKey $KEY
+        declare ${AOPT_DECLARE_FLAGS} "${AOPT_PREFIX}${KEY:2}=$1" 2>/dev/null || __handleInvalidKey $KEY
         shift
       else
-        declare ${AOPT_DECLARE_FLAGS} "${AOPT_PREFIX}${KEY:2}=$AOPT_TRUTHY" 2>/dev/null || handleInvalidKey $KEY
+        declare ${AOPT_DECLARE_FLAGS} "${AOPT_PREFIX}${KEY:2}=$AOPT_TRUTHY" 2>/dev/null || __handleInvalidKey $KEY
       fi
     ;;
     -*) # Multi-flag single-char args; -abc -a -b -C
@@ -112,7 +115,7 @@ while (( "$#" )); do
       for (( i=1; i<${#KEY}; i++ )); do
         [[ ${#AOPT_VALID_ARGS[@]} -gt 0 && ! " ${AOPT_VALID_ARGS[*]} " =~ " ${1:$i:1} " ]] \
           && __handleError "Invalid flag: -${1:$i:1}"
-        declare ${AOPT_DECLARE_FLAGS} "${AOPT_PREFIX}${KEY:$i:1}=$AOPT_TRUTHY" 2>/dev/null || handleInvalidKey ${KEY:$i:1} $KEY
+        declare ${AOPT_DECLARE_FLAGS} "${AOPT_PREFIX}${KEY:$i:1}=$AOPT_TRUTHY" 2>/dev/null || __handleInvalidKey ${KEY:$i:1} $KEY
       done
       shift
     ;;
@@ -134,7 +137,7 @@ fi
 # Cleanup non-exported things (since this will be sourced)
 unset ARGV
 unset KEY
-unset sanitize
-unset handleInvalidKey
+unset __sanitize
+unset __handleInvalidKey
 unset __handleError
 unset __validateArgument
