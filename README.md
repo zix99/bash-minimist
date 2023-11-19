@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/zix99/bash-minimist.svg?branch=master)](https://travis-ci.org/zix99/bash-minimist)
 
-*bash-minimist* is a lightweight bash script inspired by the NodeJS module [minimist](https://github.com/substack/minimist).
+*bash-minimist* is a lightweight bash script inspired by the NodeJS module [minimist](https://github.com/minimistjs/minimist).
 
 It is meant to be a very simple and non-invasive argument parser.  It will convert any flags or positional arguments into appropriate variables and expose them to your script.
 
